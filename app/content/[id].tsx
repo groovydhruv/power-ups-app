@@ -12,11 +12,14 @@ export default function ContentScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const resource = getResourceById(id);
   const [hasStartedValidation, setHasStartedValidation] = useState<boolean>(false);
+  const [isCompleted, setIsCompleted] = useState<boolean>(false);
 
   const checkValidationStatus = useCallback(async () => {
     try {
       const progress = await AsyncStorage.getItem(`validation_${id}_progress`);
+      const completed = await AsyncStorage.getItem(`resource_${id}_completed`);
       setHasStartedValidation(progress !== null && progress !== '0');
+      setIsCompleted(completed === 'true');
     } catch (error) {
       console.error('Error checking validation status:', error);
     }
@@ -70,16 +73,18 @@ export default function ContentScreen() {
         </View>
       </ScrollView>
 
-      <View style={styles.footer}>
-        <Pressable
-          style={styles.button}
-          onPress={() => router.push(`/validation/${resource.id}` as any)}
-        >
-          <Text style={styles.buttonText}>
-            {hasStartedValidation ? 'Continue Validation' : 'Start Validation'}
-          </Text>
-        </Pressable>
-      </View>
+      {!isCompleted && (
+        <View style={styles.footer}>
+          <Pressable
+            style={styles.button}
+            onPress={() => router.push(`/validation/${resource.id}` as any)}
+          >
+            <Text style={styles.buttonText}>
+              {hasStartedValidation ? 'Continue Conversation' : 'Start Conversation'}
+            </Text>
+          </Pressable>
+        </View>
+      )}
     </SafeAreaView>
   );
 }
@@ -156,15 +161,13 @@ const styles = StyleSheet.create({
   },
   footer: {
     padding: 24,
-    borderTopWidth: 1,
-    borderTopColor: Colors.dark.border,
   },
   button: {
     height: 56,
     borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: Colors.dark.primary,
+    backgroundColor: Colors.dark.success,
   },
   buttonText: {
     fontSize: 17,

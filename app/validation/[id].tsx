@@ -23,6 +23,7 @@ interface Message {
   isUser: boolean;
   timestamp: number;
   isPlaying?: boolean;
+  playbackSpeed?: 1 | 1.5;
 }
 
 export default function ValidationScreen() {
@@ -34,6 +35,7 @@ export default function ValidationScreen() {
   const [progress, setProgress] = useState<number>(0);
   const [isRecording, setIsRecording] = useState<boolean>(false);
   const [showLevelUp, setShowLevelUp] = useState<boolean>(false);
+  const xpReward = 150;
 
   const progressAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(1)).current;
@@ -41,15 +43,43 @@ export default function ValidationScreen() {
   const levelUpScale = useRef(new Animated.Value(0.8)).current;
   const flatListRef = useRef<FlatList>(null);
 
+  useEffect(() => {
+    const loadConversationState = async () => {
+      try {
+        const savedProgress = await AsyncStorage.getItem(`validation_${id}_progress`);
+        const savedMessages = await AsyncStorage.getItem(`validation_${id}_messages`);
+        
+        if (savedProgress) {
+          const progressValue = parseInt(savedProgress, 10);
+          setProgress(progressValue);
+        }
+        
+        if (savedMessages) {
+          const messagesData: Message[] = JSON.parse(savedMessages);
+          // Ensure each message has a playbackSpeed
+          const messagesWithSpeed = messagesData.map(msg => ({
+            ...msg,
+            playbackSpeed: msg.playbackSpeed || 1,
+          }));
+          setMessages(messagesWithSpeed);
+        }
+      } catch (error) {
+        console.error('Error loading conversation state:', error);
+      }
+    };
+
+    loadConversationState();
+  }, [id]);
+
   const handleComplete = useCallback(async () => {
     try {
       await AsyncStorage.setItem(`resource_${id}_completed`, 'true');
-      addXp(25);
+      await addXp(xpReward);
       router.replace('/(tabs)');
     } catch (error) {
       console.error('Error saving completion:', error);
     }
-  }, [id, addXp]);
+  }, [id, addXp, xpReward]);
 
   useEffect(() => {
     Animated.timing(progressAnim, {
@@ -126,24 +156,30 @@ export default function ValidationScreen() {
       duration: Math.floor(Math.random() * 30) + 10,
       isUser: true,
       timestamp: Date.now(),
+      playbackSpeed: 1,
     };
 
-    setMessages((prev) => [...prev, userMessage]);
-
+    const updatedMessagesWithUser = [...messages, userMessage];
+    setMessages(updatedMessagesWithUser);
+    await AsyncStorage.setItem(`validation_${id}_messages`, JSON.stringify(updatedMessagesWithUser));
     await AsyncStorage.setItem(`validation_${id}_progress`, progress.toString());
 
-    setTimeout(() => {
+    setTimeout(async () => {
       const aiResponse: Message = {
         id: (Date.now() + 1).toString(),
         duration: Math.floor(Math.random() * 45) + 15,
         isUser: false,
         timestamp: Date.now(),
+        playbackSpeed: 1,
       };
 
-      setMessages((prev) => [...prev, aiResponse]);
+      const updatedMessagesWithAI = [...updatedMessagesWithUser, aiResponse];
+      setMessages(updatedMessagesWithAI);
+      await AsyncStorage.setItem(`validation_${id}_messages`, JSON.stringify(updatedMessagesWithAI));
 
       const newProgress = Math.min(progress + 25, 100);
       setProgress(newProgress);
+      await AsyncStorage.setItem(`validation_${id}_progress`, newProgress.toString());
 
       if (newProgress >= 100) {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
@@ -162,52 +198,75 @@ export default function ValidationScreen() {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const renderMessage = ({ item }: { item: Message }) => (
-    <View style={[styles.messageRow, item.isUser && styles.messageRowUser]}>
-      {!item.isUser && (
+  const togglePlaybackSpeed = async (messageId: string) => {
+    const updatedMessages = messages.map((msg) =>
+      msg.id === messageId
+        ? { ...msg, playbackSpeed: (msg.playbackSpeed === 1.5 ? 1 : 1.5) as 1 | 1.5 }
+        : msg
+    );
+    setMessages(updatedMessages);
+    await AsyncStorage.setItem(`validation_${id}_messages`, JSON.stringify(updatedMessages));
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+  };
+
+  const renderMessage = ({ item }: { item: Message }) => {
+    const currentSpeed = item.playbackSpeed || 1;
+    
+    return (
+      <View style={[styles.messageRow, item.isUser && styles.messageRowUser]}>
+        {!item.isUser && (
+          <View
+            style={[styles.messageAvatar, { backgroundColor: '#D4C5B0' }]}
+          />
+        )}
         <View
-          style={[styles.messageAvatar, { backgroundColor: '#D4C5B0' }]}
-        />
-      )}
-      <View
-        style={[
-          styles.voiceMessageBubble,
-          item.isUser ? styles.userVoiceMessage : styles.aiVoiceMessage,
-        ]}
-      >
-        <Pressable
-          style={styles.playButton}
-          onPress={() => {
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-          }}
-        >
-          <View style={[styles.playIcon, item.isUser && styles.playIconUser]}>
-            <View style={styles.playTriangle} />
-          </View>
-        </Pressable>
-        <View style={styles.waveformContainer}>
-          {Array.from({ length: 25 }).map((_, i) => (
-            <View
-              key={i}
-              style={[
-                styles.waveBar,
-                item.isUser ? styles.waveBarUser : styles.waveBarAI,
-                { height: Math.random() * 20 + 8 },
-              ]}
-            />
-          ))}
-        </View>
-        <Text
           style={[
-            styles.durationText,
-            item.isUser ? styles.durationTextUser : styles.durationTextAI,
+            styles.voiceMessageBubble,
+            item.isUser ? styles.userVoiceMessage : styles.aiVoiceMessage,
           ]}
         >
-          {formatDuration(item.duration)}
-        </Text>
+          <Pressable
+            style={styles.playButton}
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            }}
+          >
+            <View style={[styles.playIcon, item.isUser && styles.playIconUser]}>
+              <View style={styles.playTriangle} />
+            </View>
+          </Pressable>
+          <View style={styles.waveformContainer}>
+            {Array.from({ length: 25 }).map((_, i) => (
+              <View
+                key={i}
+                style={[
+                  styles.waveBar,
+                  item.isUser ? styles.waveBarUser : styles.waveBarAI,
+                  { height: Math.random() * 20 + 8 },
+                ]}
+              />
+            ))}
+          </View>
+          <View style={styles.messageActions}>
+            <Text
+              style={[
+                styles.durationText,
+                item.isUser ? styles.durationTextUser : styles.durationTextAI,
+              ]}
+            >
+              {formatDuration(item.duration)}
+            </Text>
+            <Pressable
+              onPress={() => togglePlaybackSpeed(item.id)}
+              style={styles.speedButton}
+            >
+              <Text style={styles.speedEmoji}>{currentSpeed === 1.5 ? '🐰' : '🐢'}</Text>
+            </Pressable>
+          </View>
+        </View>
       </View>
-    </View>
-  );
+    );
+  };
 
   if (!resource) {
     return null;
@@ -287,17 +346,20 @@ export default function ValidationScreen() {
             style={[
               styles.micButton,
               {
-                backgroundColor: isRecording ? Colors.dark.primary : Colors.dark.surface,
+                backgroundColor: isRecording ? Colors.dark.success : Colors.dark.surface,
               },
             ]}
           >
             <Mic
-              size={40}
-              color={isRecording ? Colors.dark.background : Colors.dark.primary}
+              size={56}
+              color={isRecording ? Colors.dark.background : Colors.dark.success}
+              strokeWidth={2}
             />
           </Pressable>
         </Animated.View>
-        {isRecording && <Text style={styles.recordingText}>Release to send</Text>}
+        <Text style={[styles.instructionText, isRecording && styles.instructionTextActive]}>
+          {isRecording ? 'Release to send' : 'Hold to talk, release to send'}
+        </Text>
       </View>
 
       {showLevelUp && (
@@ -355,9 +417,10 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 18,
-    fontWeight: '600' as const,
+    fontWeight: '700' as const,
     color: Colors.dark.text,
-    fontFamily: 'Fustat_600SemiBold',
+    letterSpacing: -0.3,
+    fontFamily: 'Fustat_700Bold',
   },
   headerSubtitle: {
     fontSize: 12,
@@ -472,6 +535,11 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.dark.primary,
     opacity: 0.6,
   },
+  messageActions: {
+    flexDirection: 'column' as const,
+    alignItems: 'center' as const,
+    gap: 4,
+  },
   durationText: {
     fontSize: 12,
     fontFamily: 'Fustat_400Regular',
@@ -482,32 +550,45 @@ const styles = StyleSheet.create({
   durationTextAI: {
     color: Colors.dark.textSecondary,
   },
+  speedButton: {
+    padding: 4,
+    borderRadius: 8,
+    alignItems: 'center' as const,
+    justifyContent: 'center' as const,
+  },
+  speedEmoji: {
+    fontSize: 16,
+  },
   inputContainer: {
     paddingHorizontal: 20,
-    paddingVertical: 16,
+    paddingVertical: 20,
     alignItems: 'center',
-    gap: 8,
+    gap: 12,
   },
   micButtonWrapper: {
     alignItems: 'center',
   },
   micButton: {
-    width: 90,
-    height: 90,
-    borderRadius: 45,
+    width: 110,
+    height: 110,
+    borderRadius: 55,
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
-    shadowRadius: 8,
+    shadowRadius: 12,
     elevation: 8,
   },
-  recordingText: {
+  instructionText: {
     fontSize: 13,
-    color: Colors.dark.textSecondary,
+    color: Colors.dark.textTertiary,
     fontWeight: '500' as const,
     fontFamily: 'Fustat_600SemiBold',
+    textAlign: 'center' as const,
+  },
+  instructionTextActive: {
+    color: Colors.dark.success,
   },
   levelUpOverlay: {
     position: 'absolute',
@@ -538,52 +619,63 @@ const styles = StyleSheet.create({
   },
   headerWrapper: {
     backgroundColor: Colors.dark.surface,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.dark.border,
+    paddingBottom: 4,
   },
   resourceTitleContainer: {
     paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.dark.border,
+    paddingTop: 12,
+    paddingBottom: 8,
   },
   resourceTitle: {
-    fontSize: 15,
-    fontWeight: '500' as const,
+    fontSize: 16,
+    fontWeight: '600' as const,
     color: Colors.dark.text,
-    fontFamily: 'Fustat_500Medium',
+    lineHeight: 22,
+    fontFamily: 'Fustat_600SemiBold',
   },
   progressContainer: {
     paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingVertical: 16,
+    backgroundColor: Colors.dark.background,
+    borderRadius: 12,
+    margin: 12,
   },
   progressHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: 10,
   },
   progressLabel: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '600' as const,
     color: Colors.dark.textSecondary,
+    letterSpacing: 0.5,
+    textTransform: 'uppercase' as const,
     fontFamily: 'Fustat_600SemiBold',
   },
   progressPercentage: {
-    fontSize: 14,
+    fontSize: 18,
     fontWeight: '700' as const,
     color: Colors.dark.primary,
+    letterSpacing: -0.5,
     fontFamily: 'Fustat_700Bold',
   },
   progressBarBackground: {
-    height: 6,
-    backgroundColor: Colors.dark.border,
-    borderRadius: 3,
+    height: 8,
+    backgroundColor: Colors.dark.surface,
+    borderRadius: 4,
     overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: Colors.dark.border,
   },
   progressBarFill: {
     height: '100%',
     backgroundColor: Colors.dark.primary,
-    borderRadius: 3,
+    borderRadius: 4,
+    shadowColor: Colors.dark.primary,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.5,
+    shadowRadius: 4,
   },
 });

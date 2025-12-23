@@ -12,7 +12,9 @@ import { useProgress } from '@/contexts/ProgressContext';
 export default function HomeScreen() {
   const [completedResources, setCompletedResources] = useState<Set<string>>(new Set());
   const shakeAnim = useRef(new Animated.Value(0)).current;
-  const { level, getCurrentLevelXp, XP_PER_LEVEL, streak, isLoaded } = useProgress();
+  const { level, getCurrentLevelXp, getXpPerLevel, streak, isLoaded } = useProgress();
+  const [currentLevelXp, setCurrentLevelXp] = useState<number>(0);
+  const [xpPerLevel, setXpPerLevel] = useState<number>(0);
 
   const loadCompletedResources = useCallback(async () => {
     const completed = new Set<string>();
@@ -47,6 +49,19 @@ export default function HomeScreen() {
       loadCompletedResources();
     }, [loadCompletedResources])
   );
+
+  useEffect(() => {
+    const loadXpData = async () => {
+      const levelXp = await getCurrentLevelXp();
+      const totalXpForLevel = await getXpPerLevel();
+      setCurrentLevelXp(levelXp);
+      setXpPerLevel(totalXpForLevel);
+    };
+
+    if (isLoaded) {
+      loadXpData();
+    }
+  }, [level, isLoaded, getCurrentLevelXp, getXpPerLevel]);
 
   const getResourceStatus = (theme: Theme, resource: Resource, resourceIndex: number, themeIndex: number) => {
     if (!isThemeUnlocked(theme, themeIndex)) {
@@ -280,7 +295,7 @@ export default function HomeScreen() {
               <Zap size={18} color={Colors.dark.primary} fill={Colors.dark.primary} />
               <View style={styles.statTextContainer}>
                 <Text style={styles.statValue}>Level {level}</Text>
-                <Text style={styles.statLabel}>{getCurrentLevelXp()}/{XP_PER_LEVEL} XP</Text>
+                <Text style={styles.statLabel}>{currentLevelXp}/{xpPerLevel} XP</Text>
               </View>
             </View>
             
@@ -399,30 +414,26 @@ const styles = StyleSheet.create({
     marginBottom: 60,
   },
   themeHeader: {
-    backgroundColor: Colors.dark.primary,
-    paddingVertical: 16,
-    paddingHorizontal: 28,
-    borderRadius: 30,
+    backgroundColor: 'transparent',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 24,
     alignSelf: 'center',
     marginBottom: 48,
-    shadowColor: Colors.dark.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 12,
-    elevation: 8,
+    borderWidth: 1.5,
+    borderColor: Colors.dark.border,
   },
   themeHeaderLocked: {
-    backgroundColor: Colors.dark.surfaceLight,
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    opacity: 1,
+    borderColor: Colors.dark.border,
+    opacity: 0.5,
   },
   themeTitle: {
-    fontSize: 20,
-    fontWeight: '800',
-    color: Colors.dark.background,
-    letterSpacing: 0.3,
-    fontFamily: 'Fustat_800ExtraBold',
+    fontSize: 18,
+    fontWeight: '600',
+    color: Colors.dark.textSecondary,
+    letterSpacing: 1,
+    textTransform: 'lowercase' as const,
+    fontFamily: 'Fustat_600SemiBold',
   },
   themeTitleLocked: {
     color: Colors.dark.textTertiary,

@@ -1,6 +1,7 @@
 import { Tabs } from 'expo-router';
 import { Home, Trophy, User } from 'lucide-react-native';
 import React from 'react';
+import { Platform } from 'react-native';
 
 import Colors from '@/constants/colors';
 
@@ -15,14 +16,16 @@ export default function TabsLayout() {
           backgroundColor: Colors.dark.surface,
           borderTopColor: Colors.dark.border,
           borderTopWidth: 1,
-          height: 60,
-          paddingBottom: 8,
+          height: Platform.OS === 'web' ? 70 : 60,
+          paddingBottom: Platform.OS === 'web' ? 12 : 8,
           paddingTop: 8,
+          position: 'relative',
         },
         tabBarLabelStyle: {
           fontSize: 11,
           fontWeight: '600',
           letterSpacing: 0.2,
+          marginBottom: Platform.OS === 'web' ? 4 : 0,
         },
       }}
     >

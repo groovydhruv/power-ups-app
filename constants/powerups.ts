@@ -21,7 +21,7 @@ export interface Theme {
 export const THEMES: Theme[] = [
   {
     id: 'theme-1',
-    title: 'stay hungry, stay foolish',
+    title: 'Stay hungry, stay foolish.',
     status: 'unlocked',
     resources: [
       {
@@ -52,40 +52,201 @@ export const THEMES: Theme[] = [
   },
   {
     id: 'theme-2',
-    title: 'Theme 2: Master Your Craft',
+    title: 'The unexamined life is not worth living.',
     status: 'locked',
     resources: [
       {
-        id: '4',
-        title: 'Self-Discipline',
-        description: 'Build habits that drive consistent action',
+        id: '3',
+        title: 'The Real Meaning of Life',
+        description: 'watch, 12 min',
         isCompleted: false,
+        thumbnail: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=400&h=300&fit=crop',
+        content: {
+          type: 'video',
+          title: 'The Real Meaning of Life',
+          summary: 'A philosophical exploration of what gives life meaning and purpose. This video examines different perspectives on the meaning of life and how we can find fulfillment through self-examination and conscious living.'
+        }
+      },
+      {
+        id: '4',
+        title: 'Mark Manson: Self-Knowledge',
+        description: 'read, 120 min',
+        isCompleted: false,
+        thumbnail: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=300&fit=crop',
         content: {
           type: 'text',
-          title: 'The Science of Self-Discipline',
-          summary: 'Self-discipline is doing what needs to be done, even when you don\'t feel like it. Start small, remove temptations, and create systems that support your goals.'
+          title: 'Mark Manson: Self-Knowledge',
+          summary: 'An in-depth article exploring the importance of knowing yourself. Mark Manson discusses how self-knowledge is the foundation for making better decisions, building healthier relationships, and living a more authentic life.'
         }
       },
       {
         id: '5',
-        title: 'Emotional Intelligence',
-        description: 'Understand and manage emotions effectively',
+        title: 'Mark Manson: Self-Awareness',
+        description: 'read, 30 min',
         isCompleted: false,
+        thumbnail: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=400&h=300&fit=crop',
         content: {
           type: 'text',
-          title: 'Mastering Emotional Intelligence',
-          summary: 'EQ involves recognizing, understanding and managing your emotions and those of others. Practice self-awareness, empathy, and emotional regulation daily.'
+          title: 'Mark Manson: Self-Awareness',
+          summary: 'Practical insights on developing self-awareness in daily life. This article explores how being conscious of your thoughts, emotions, and behaviors can lead to personal growth and better life outcomes.'
         }
       },
       {
         id: '6',
-        title: 'Creative Thinking',
-        description: 'Unlock innovative solutions and new perspectives',
+        title: 'Aristotle: Happiness and Eudaimonia',
+        description: 'read, 15 min',
         isCompleted: false,
+        thumbnail: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=400&h=300&fit=crop',
         content: {
           type: 'text',
-          title: 'Developing Creative Thinking',
-          summary: 'Creative thinking involves looking at problems from different angles and generating novel solutions. Practice divergent thinking, question assumptions, and combine ideas in unexpected ways.'
+          title: 'Aristotle: Happiness and Eudaimonia',
+          summary: 'An exploration of Aristotle\'s concept of eudaimonia - human flourishing and the good life. Learn how ancient philosophy can guide us toward lasting happiness through virtue and purpose-driven living.'
+        }
+      }
+    ]
+  },
+  {
+    id: 'theme-3',
+    title: 'Changing the default settings.',
+    status: 'locked',
+    resources: [
+      {
+        id: '7',
+        title: 'Life Optimizer: Being Intentional',
+        description: 'read, 3 min',
+        isCompleted: false,
+        thumbnail: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=400&h=300&fit=crop',
+        content: {
+          type: 'text',
+          title: 'Life Optimizer: Being Intentional',
+          summary: 'A practical guide to living with intention. Learn how to make conscious choices about how you spend your time, energy, and attention instead of defaulting to automatic behaviors.'
+        }
+      },
+      {
+        id: '8',
+        title: 'The Subtle Art of Not Giving a F*ck - Summary',
+        description: 'watch, 8 min',
+        isCompleted: false,
+        thumbnail: 'https://images.unsplash.com/photo-1556761175-b413da4baf72?w=400&h=300&fit=crop',
+        content: {
+          type: 'video',
+          title: 'The Subtle Art of Not Giving a F*ck - Summary',
+          summary: 'A concise summary of Mark Manson\'s bestselling book. Discover why choosing what to care about is the key to a good life, and how to stop wasting energy on things that don\'t matter.'
+        }
+      },
+      {
+        id: '9',
+        title: 'Why you should define your fears instead of your goals, Tim Ferriss',
+        description: 'watch, 13 min',
+        isCompleted: false,
+        thumbnail: 'https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=400&h=300&fit=crop',
+        content: {
+          type: 'video',
+          title: 'Why you should define your fears instead of your goals',
+          summary: 'Tim Ferriss shares his "fear-setting" exercise - a practical framework for overcoming paralysis and making tough decisions by clearly defining and addressing your fears.'
+        }
+      },
+      {
+        id: '10',
+        title: 'The Dunning-Kruger Effect',
+        description: 'watch, 14 min',
+        isCompleted: false,
+        thumbnail: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=400&h=300&fit=crop',
+        content: {
+          type: 'video',
+          title: 'The Dunning-Kruger Effect',
+          summary: 'Understanding cognitive bias and self-awareness. Learn why we often overestimate our abilities and how recognizing this effect can help you grow and make better decisions.'
+        }
+      },
+      {
+        id: '11',
+        title: '19 Great Truths My Grandmother Told Me',
+        description: 'read, 10 min',
+        isCompleted: false,
+        thumbnail: 'https://images.unsplash.com/photo-1474552226712-ac0f0961a954?w=400&h=300&fit=crop',
+        content: {
+          type: 'text',
+          title: '19 Great Truths My Grandmother Told Me',
+          summary: 'Timeless wisdom passed down through generations. Simple yet profound life lessons about happiness, relationships, resilience, and living authentically.'
+        }
+      }
+    ]
+  },
+  {
+    id: 'theme-4',
+    title: 'Get shit done.',
+    status: 'locked',
+    resources: [
+      {
+        id: '12',
+        title: 'Tim Urban: Inside the mind of a master procrastinator',
+        description: 'watch, 14 min',
+        isCompleted: false,
+        thumbnail: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=400&h=300&fit=crop',
+        content: {
+          type: 'video',
+          title: 'Tim Urban: Inside the mind of a master procrastinator',
+          summary: 'A hilarious and insightful TED talk exploring why we procrastinate and how the "Instant Gratification Monkey" hijacks our decision-making. Tim Urban shares his personal struggles and offers perspective on overcoming procrastination.'
+        }
+      },
+      {
+        id: '13',
+        title: 'Timeboxing: Elon Musk\'s Time Management Method',
+        description: 'watch, 12 min',
+        isCompleted: false,
+        thumbnail: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=400&h=300&fit=crop',
+        content: {
+          type: 'video',
+          title: 'Timeboxing: Elon Musk\'s Time Management Method',
+          summary: 'Learn how one of the world\'s most productive entrepreneurs manages his time. Discover the timeboxing technique that helps Elon Musk run multiple companies and why scheduling every minute can maximize your productivity.'
+        }
+      },
+      {
+        id: '14',
+        title: 'The Eisenhower matrix: How to manage your tasks',
+        description: 'watch, 2 min',
+        isCompleted: false,
+        thumbnail: 'https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=400&h=300&fit=crop',
+        content: {
+          type: 'video',
+          title: 'The Eisenhower matrix: How to manage your tasks',
+          summary: 'A simple yet powerful framework for prioritizing tasks based on urgency and importance. Learn to distinguish between what\'s urgent and what\'s important to focus on what truly matters.'
+        }
+      },
+      {
+        id: '15',
+        title: 'Tiny Changes, Remarkable Results - Atomic Habits by James Clear',
+        description: 'watch, 11 min',
+        isCompleted: false,
+        thumbnail: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=400&h=300&fit=crop',
+        content: {
+          type: 'video',
+          title: 'Tiny Changes, Remarkable Results - Atomic Habits',
+          summary: 'A summary of James Clear\'s bestselling book on habit formation. Discover how small changes compound over time and learn practical strategies for building good habits and breaking bad ones.'
+        }
+      },
+      {
+        id: '16',
+        title: 'The Truth About Hard Work, Kapil and Naval',
+        description: 'read, 10 min',
+        isCompleted: false,
+        thumbnail: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=300&fit=crop',
+        content: {
+          type: 'text',
+          title: 'The Truth About Hard Work, Kapil and Naval',
+          summary: 'A conversation between Kapil Gupta and Naval Ravikant on the nature of hard work, productivity, and achievement. Explore a counterintuitive perspective on effort and success.'
+        }
+      },
+      {
+        id: '17',
+        title: 'Social Media is Hacking You',
+        description: 'watch, 15 min',
+        isCompleted: false,
+        thumbnail: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=400&h=300&fit=crop',
+        content: {
+          type: 'video',
+          title: 'Social Media is Hacking You',
+          summary: 'Understanding how social media platforms are designed to capture your attention and time. Learn about the psychology behind endless scrolling and how to reclaim control of your focus and productivity.'
         }
       }
     ]
